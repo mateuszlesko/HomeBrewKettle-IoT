@@ -6,10 +6,9 @@
 #include <ctime>
 
 #define MAX_STAGES 10
-#define MAX_MESURUMENT_STATS 14 // 90s : 14 = every 5s one
+#define MAX_MESURUMENTS 12 // 60s : 12 = every 5s one
 
-#define LED 32
+#define HEATER_PORT 32
 
-void sort_array(uint8_t *arr,uint8_t length);
-uint8_t  median(uint8_t arr[14],int length);
+#define OIPP 1.5 //optimal increase per period (1.5 C / min)
 #endif
