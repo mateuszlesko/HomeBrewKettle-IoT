@@ -1,7 +1,9 @@
 #include <Arduino.h>
+#include <WiFi.h>
 #include "../lib/MEASUREMENT/lm35.h"
 #include "../lib/GENERAL/general.h"
 #include "../lib/MEASUREMENT/mesurement_stats.h"
+#include "../lib/PubSub/PubSubClient.h"
 
 uint8_t* t_measurements;
 
@@ -16,6 +18,13 @@ static uint8_t stage_index = 0;
 hw_timer_t *timer_0 = NULL;
 
 uint8_t control_signals = 0;
+
+WiFiClient espClient;
+
+PubSubClient mqttClient(espClient);
+
+char messageString[8];
+
 //time interrupt handle
 void IRAM_ATTR onTimer(){
   uint8_t liquid_temperatureC = measure_temperature(LM35_PORT);
@@ -35,11 +44,38 @@ void IRAM_ATTR onTimer(){
 void setup() {
   Serial.begin(9600);
   t_measurements = (uint8_t*)calloc(MAX_MESURUMENTS,sizeof(uint8_t*));
-  optimal_temperatures = (uint8_t*) calloc(MAX_STAGES,sizeof(uint8_t*));
+  optimal_temperatures = (uint8_t*) calloc(1,sizeof(uint8_t*));
   optimal_temperatures[0] = 20;
 
   pinMode(HEATER_PORT,OUTPUT);
   digitalWrite(HEATER_PORT, 1);
+  
+   Serial.println("");
+  Serial.print("connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid,password);
+
+  while(WiFi.status() != WL_CONNECTED){
+    delay(1000);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("Connected");
+  Serial.println("IP:");
+  Serial.println(WiFi.localIP());
+
+  mqttClient.setServer(MQTT_SERVER,MQTT_PORT);
+   while(!mqttClient.connected()){
+    if(mqttClient.connect("ESP8266Client")){
+      break;
+    }
+    else{ 
+      Serial.println("trying to connect");
+      delay(1000);
+    }
+  }
+  
   //setting up time control
   timer_0 = timerBegin(0, 80, true); //setting up timer : select timer number (from 0 to 3), prescaler, count up (true) / count down (false) 
   timerAttachInterrupt(timer_0, &onTimer, true); //setting up time interrupt to timer and interrupt handle func,
@@ -51,6 +87,18 @@ void setup() {
 }
 
 void loop() {
+ 
+  while(!mqttClient.connected()){
+    if(mqttClient.connect("ESP8266Client")){
+      break;
+    }
+    else{ 
+      Serial.println("trying to connect");
+      delay(1000);
+    }
+  }
+  mqttClient.loop();
+  
   if(control_signals & (1<<0)){
     uint8_t estimated_T = calculate_median(t_measurements,MAX_MESURUMENTS);
     Serial.print("Temperatura [C]:");
@@ -67,6 +115,8 @@ void loop() {
       control_signals &= ~(1<<1);
       digitalWrite(HEATER_PORT,0);
     }
+    dtostrf(estimated_T, 1, 2, messageString);
+    mqttClient.publish("mashtum/temperature",messageString);
     control_signals &= ~(1<<0);
   }
 }
