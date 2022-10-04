@@ -6,14 +6,14 @@
 #include <ctime>
 
 #define MAX_STAGES 10
-#define MAX_MESURUMENTS 6 // 60s : 12 = every 5s one
+#define MAX_MESURUMENTS 12 // 60s : 12 = every 5s one
 
 #define HEATER_PORT 4
 
 #define OIPP 1.5 //optimal increase per period (1.5 C / min)
 
-const char* ssid = "NETIASPOT-2.4GHz-g8qW";
-const char* password = "qTJzYf6e";
+const char* ssid = "ssid";
+const char* password = "password";
 
 #define MQTT_SERVER "192.168.100.132"
 #define MQTT_PORT 1883
