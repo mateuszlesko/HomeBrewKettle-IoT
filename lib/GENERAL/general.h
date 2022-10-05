@@ -12,10 +12,10 @@
 
 #define OIPP 1.5 //optimal increase per period (1.5 C / min)
 
-const char* ssid = "ssid";
-const char* password = "password";
+const char* ssid = "R1";
+const char* password = "8C739y!1";
 
-#define MQTT_SERVER "192.168.100.132"
+#define MQTT_SERVER "192.168.137.1"
 #define MQTT_PORT 1883
 
 #endif

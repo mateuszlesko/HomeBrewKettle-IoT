@@ -25,21 +25,36 @@ PubSubClient mqttClient(espClient);
 
 char messageString[8];
 
-//time interrupt handle
-void IRAM_ATTR onTimer(){
-  uint8_t liquid_temperatureC = measure_temperature(LM35_PORT);
 
-  if(t_measurements_counter == MAX_MESURUMENTS){
-    t_measurements_counter = 0;
-    control_signals |= (1<<0);
+#ifdef __cplusplus
+extern "C"{
+  //time interrupt handle
+  void IRAM_ATTR onTimer(){
+    uint8_t liquid_temperatureC = measure_temperature(LM35_PORT);
+
+    if(t_measurements_counter == MAX_MESURUMENTS){
+      t_measurements_counter = 0;
+      control_signals |= (1<<0);
+    }
+
+    if(liquid_temperatureC > 0 && liquid_temperatureC < 102){
+      *(t_measurements+t_measurements_counter)=liquid_temperatureC;
+    }
+
+    t_measurements_counter++;
   }
 
-  if(liquid_temperatureC > 0 && liquid_temperatureC < 102){
-    *(t_measurements+t_measurements_counter)=liquid_temperatureC;
+  inline void setup_esp_components(void){
+    //settup adc:
+    configure_adc();
+    //setting up time control
+    timer_0 = timerBegin(0, 80, true); //setting up timer : select timer number (from 0 to 3), prescaler, count up (true) / count down (false) 
+    timerAttachInterrupt(timer_0, &onTimer, true); //setting up time interrupt to timer and interrupt handle func,
+    timerAlarmWrite(timer_0, 5000000, true); //setting up timer, time to interrupt, reload - interrupt will be genereated periodically
+    timerAlarmEnable(timer_0);
   }
-
-  t_measurements_counter++;
 }
+#endif
 
 void setup() {
   Serial.begin(9600);
@@ -76,12 +91,7 @@ void setup() {
     }
   }
   
-  //setting up time control
-  timer_0 = timerBegin(0, 80, true); //setting up timer : select timer number (from 0 to 3), prescaler, count up (true) / count down (false) 
-  timerAttachInterrupt(timer_0, &onTimer, true); //setting up time interrupt to timer and interrupt handle func,
-  timerAlarmWrite(timer_0, 5000000, true); //setting up timer, time to interrupt, reload - interrupt will be genereated periodically
-  timerAlarmEnable(timer_0);
-
+  setup_esp_components();
   // temperature probe #0
   prev_liquid_temperatureC = measure_temperature(LM35_PORT);
 }
@@ -89,7 +99,7 @@ void setup() {
 void loop() {
  
   while(!mqttClient.connected()){
-    if(mqttClient.connect("ESP8266Client")){
+    if(mqttClient.connect("MashTum1")){
       break;
     }
     else{ 
