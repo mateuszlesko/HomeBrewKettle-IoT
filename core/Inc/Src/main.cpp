@@ -1,11 +1,10 @@
 #include "main.h"
-#include "lib/GPIO/gpio.h"
 
 static Main m;
 
 extern "C" void app_main(void)
 {
-    ESP_ERROR_CHECK(m.setup());
+    ESP_ERROR_CHECK(m.setup_hardware());
     while(true)
     {
         m.run();
@@ -13,14 +12,21 @@ extern "C" void app_main(void)
     fflush(stdout);
 }
 
+
+esp_err_t setup_gpio(void)
+{
+    //ESP_LOGI(PINOUT::PIN_SETUP_LOG_TAG,"configuring GPIO pins");
+    PINOUT::PinOutput heater = PINOUT::PinOutput(PINOUT::HEATER_PIN);
+    esp_err_t status{ESP_OK};
+    return status;
+}
+
 Main::Main(void){}
 
-esp_err_t Main::setup(void)
+esp_err_t Main::setup_hardware(void)
 {
     ESP_LOGI(SETUP_LOG_TAG,"configuring general peryferials");
-    gpio_reset_pin(GPIO:HEATER_PIN);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    setup_gpio();
     esp_err_t status{ESP_OK};
     return status;  
 }
@@ -28,8 +34,5 @@ esp_err_t Main::setup(void)
 void Main::run(void)
 {
     ESP_LOGI(MAIN_LOG_TAG,"Hello there!");
-    gpio_set_level(GPIO:HEATER_PIN, GPIO::level.HIGH);
-    vTaskDelay(pdSECOND);
-    gpio_set_level(GPIO:HEATER_PIN, GPIO::level.LOW);
     vTaskDelay(pdSECOND);
 }
