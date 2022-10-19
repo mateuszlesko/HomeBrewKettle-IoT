@@ -1,14 +1,15 @@
-#include "gpio.h"
+#include "Pinout.h"
 
 using namespace PINOUT; 
 
-PinOutput::PinOutput(gpio_num_t& _pin)
+PinOutput::PinOutput(gpio_num_t _pin)
 {
     pin = _pin;
     direction = OUTPUT;
+    gpio_set_direction(pin,GPIO_MODE_OUTPUT);
 }
 
-PinOutput::PinOutput(const gpio_num_t& _pin, enum State _state)
+PinOutput::PinOutput(const gpio_num_t _pin, enum State _state)
 {
     pin = _pin;
     direction = OUTPUT;
@@ -33,6 +34,7 @@ State PinOutput::getPinState()
 void PinOutput::setPinState(enum State _state)
 {
     state = _state;
+    gpio_set_level(pin,state);
 }
 
 gpio_num_t& PinOutput::getPin()
