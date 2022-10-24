@@ -7,6 +7,9 @@
     #include "freertos/task.h"
     #include "esp_log.h"
     #include "../../app/PINOUT/Pinout.h"
+    #include "../../app/ADC/PinADC1.h"
+    #include "driver/adc.h"
+    #include "esp_adc_cal.h"
 
     #define SETUP_LOG_TAG "SETUP"
     #define MAIN_LOG_TAG "MAIN"

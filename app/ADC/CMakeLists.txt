@@ -1,5 +1,5 @@
-set(SOURCES PinOutput.cpp)
+set(SOURCES PinADC1.cpp)
 
 idf_component_register(SRCS ${SOURCES}
                         INCLUDE_DIRS .
-                        REQUIRES)
+                        REQUIRES esp_adc_cal)

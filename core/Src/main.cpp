@@ -1,5 +1,4 @@
 #include "main.h"
-//#include "../../app/PINOUT/gpio.h"
 
 static Main m;
 
@@ -8,11 +7,12 @@ PINOUT::PinOutput pump(PINOUT::PUMP_PIN);
 PINOUT::PinOutput startLED(PINOUT::LED_START_PIN);
 PINOUT::PinOutput idleLED(PINOUT::LED_IDLE_PIN);
 PINOUT::PinOutput emergencyLED(PINOUT::LED_EMERGENCY_PIN);
+ADC::PinADC1 sensor1;
 
 
 extern "C" void app_main(void)
 {
-    ESP_ERROR_CHECK(m.setupHardware());
+    ESP_ERROR_CHECK(m.setupHardware());   
     while(true)
     {
         m.run();
@@ -27,6 +27,11 @@ esp_err_t Main::setupHardware(void)
 {
     ESP_LOGI(SETUP_LOG_TAG,"configuring general peryferials");
     esp_err_t status{ESP_OK};
+    sensor1.setADCChannel(ADC::SENSOR1_ADC);
+    sensor1.setADCAttennuation(ADC_ATTEN_DB_11);
+    //sensor1.setADCBitsWidth(ADC_WIDTH_MAX);
+    sensor1.calibrateADC();
+    sensor1.configureADC();
     return status;  
 }
 
@@ -46,8 +51,10 @@ void Main::ledsTest(void)
 
 void Main::run(void)
 {
+    uint32_t mv = sensor1.measure();
+    printf("voltage: %d V \n", mv);
+   //ESP_LOGI(MAIN_LOG_TAG,"Hello there!");
     
-    ESP_LOGI(MAIN_LOG_TAG,"Hello there!");
-    m.ledsTest();
+    //m.ledsTest();
     vTaskDelay(pdSECOND);
 }

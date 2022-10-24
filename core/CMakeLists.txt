@@ -7,4 +7,6 @@ idf_component_register(SRCS ${SOURCES}
                             esp_common 
                             esp_event 
                             nvs_flash
+                            esp_adc_cal
+                            ADC
                             )

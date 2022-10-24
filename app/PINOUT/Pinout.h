@@ -3,19 +3,8 @@
 //#pragma once
 
 #include "driver/gpio.h"
-#include "driver/adc.h"
-
 #include "esp_log.h"
-
-//#include <cassert>
 #include <cstdint>
-//#include <cstring>
-//#include <array>
-//#include <bitset>
-//#include <mutex>
-//#include <string_view>
-//#include <type_traits>
-//#include <utility>
 //#pragma once    
 namespace PINOUT{
     
@@ -24,8 +13,6 @@ namespace PINOUT{
 
     const gpio_num_t HEATER_PIN = GPIO_NUM_16; /* output PIN - control heater : turn on / off */
     const gpio_num_t PUMP_PIN = GPIO_NUM_17; /* output PIN - control pump : turn on / off */
-    const gpio_num_t SENSOR1_PIN = GPIO_NUM_34; /* only input PIN - for top LM35 */
-    const gpio_num_t SENSOR2_PIN = GPIO_NUM_35;  /* only input PIN - for buttom LM35 */
     const gpio_num_t LED_START_PIN = GPIO_NUM_2; /* led - to inform that machine start processing recipe */
     const gpio_num_t LED_IDLE_PIN = GPIO_NUM_15; /* led - to infrom that machine is power on and waits for recipe */
     const gpio_num_t LED_EMERGENCY_PIN = GPIO_NUM_0; /* led - to inform about emergency happend */
@@ -40,23 +27,7 @@ namespace PINOUT{
         OUTPUT,
         INPUT
     };
-    
-//    class Pinout{
-//        
-//        protected:
-//        State state; 
-//        gpio_num_t pin;
-//        Direction direction;
-//        
-//        public:
-//        Pinout(gpio_num_t _pin);
-//        ~Pinout();
-//        Direction getDirection(); // get info about pin output or input;
-//        State getPinState();// get current state of pin;
-//        gpio_num_t& getPin();
-//    
-//    };
-   
+       
     class PinOutput {
         
         private:
@@ -74,7 +45,5 @@ namespace PINOUT{
         State getPinState();
     
     };   
-    
-    
 }
 #endif
