@@ -32,5 +32,19 @@ void PinADC1::configureADC()
 uint32_t PinADC1::measure()
 {
     uint32_t mV = esp_adc_cal_raw_to_voltage(adc1_get_raw(channel), &adc1_chars);
+    //uint32_t val = adc1_get_raw(channel);
     return mV;
+}
+uint32_t PinADC1::scale(uint32_t adcVal, int a, int b, int c, int d)
+{
+      /*
+        SCALE VALUE FROM ONE RANGE TO ANOTHER:
+        a => x => b
+        c => y => d
+            
+        x = measured value from range from a to b
+        y = scaled value corresponds to x in range from c to d
+        y = (x-a)*(d-c)/(b-a)+c.
+       */
+    return (adcVal - a) * (d - c) / (b - a) + c;
 }

@@ -9,13 +9,13 @@
 
 namespace ADC{
 
-    #define DEFAULT_VREF    3300        //Use adc2_vref_to_gpio() to obtain a better estimate
-
     const adc1_channel_t SENSOR1_ADC = ADC1_CHANNEL_6; /* only input PIN - for top LM35 */
 
     const adc1_channel_t SENSOR2_ADC = ADC1_CHANNEL_7;  /* only input PIN - for buttom LM35 */
 
-
+    #define ADC_ATTEN_DB_11_LOW 150
+    #define ADC_ATTEN_DB_11_HIGH 2450
+    
     class PinADC1{
   
         public:
@@ -30,7 +30,7 @@ namespace ADC{
         void calibrateADC();
         void configureADC();
         uint32_t measure();
-        
+        uint32_t scale(uint32_t adcVal, int a, int b, int c, int d);
     };
 }
 

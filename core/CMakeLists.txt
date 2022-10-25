@@ -9,4 +9,5 @@ idf_component_register(SRCS ${SOURCES}
                             nvs_flash
                             esp_adc_cal
                             ADC
+                            SENSORS
                             )

@@ -8,6 +8,7 @@
     #include "esp_log.h"
     #include "../../app/PINOUT/Pinout.h"
     #include "../../app/ADC/PinADC1.h"
+    #include "../../app/SENSORS/LM35.h"
     #include "driver/adc.h"
     #include "esp_adc_cal.h"
 
