@@ -19,13 +19,13 @@ void PinADC1::setADCBitsWidth(adc_bits_width_t _bitsWidth)
 
 void PinADC1::calibrateADC()
 {
-    esp_adc_cal_characterize(ADC_UNIT_1, atten, ADC_WIDTH_BIT_DEFAULT, 0, &adc1_chars);
+    esp_adc_cal_characterize(ADC_UNIT_1, atten, ADC_WIDTH_BIT_10, 0, &adc1_chars);
     //esp_adc_cal_characterize(channel, atten, ADC_WIDTH_BIT_DEFAULT, 0, &adc1_chars);
 }
 
 void PinADC1::configureADC()
 {
-    adc1_config_width(ADC_WIDTH_BIT_DEFAULT);
+    adc1_config_width(ADC_WIDTH_BIT_10);
 
 }
 

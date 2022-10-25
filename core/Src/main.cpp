@@ -27,7 +27,7 @@ esp_err_t Main::setupHardware(void)
 {
     ESP_LOGI(SETUP_LOG_TAG,"configuring general peryferials");
     esp_err_t status{ESP_OK};
-    sensor1.setADCChannel(ADC::SENSOR1_ADC);
+    sensor1.setADCChannel(ADC::SENSOR2_ADC);
     sensor1.setADCAttennuation(ADC_ATTEN_DB_11);
     //sensor1.setADCBitsWidth(ADC_WIDTH_MAX);
     sensor1.calibrateADC();
