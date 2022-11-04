@@ -23,14 +23,15 @@ namespace ADC{
         adc_atten_t   atten;
         adc_bits_width_t bitsWidth;
         esp_adc_cal_characteristics_t adc1_chars;
-    
+        int samples;
+        
         void setADCChannel(adc1_channel_t _channel);
         void setADCAttennuation(adc_atten_t _atten);
         void setADCBitsWidth(adc_bits_width_t _bitsWidth);
         void calibrateADC();
         void configureADC();
-        uint32_t measure();
-        uint32_t scale(uint32_t adcVal, int a, int b, int c, int d);
+        void setSamples(int s);
+        float measure();
     };
 }
 
