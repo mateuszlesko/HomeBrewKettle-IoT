@@ -4,7 +4,7 @@ static Main m;
 
 
 //TODO: take these to heap
-//PINOUT::PinOutput heater(PINOUT::HEATER_PIN);
+PINOUT::PinOutput heater(PINOUT::HEATER_PIN);
 //PINOUT::PinOutput pump(PINOUT::PUMP_PIN);
 //PINOUT::PinOutput startLED(PINOUT::LED_START_PIN);
 //PINOUT::PinOutput idleLED(PINOUT::LED_IDLE_PIN);
@@ -78,15 +78,16 @@ esp_err_t Main::setupHardware(void)
 
 void Main::run(void)
 {
+    float temperature = 0.0f;
     if(processControlSignals & (1<<0))
     {
         float mv = sensor1.measure();
-        float temperature = lm35.readTemperature();
+        temperature = lm35.readTemperature();
         printf("voltage: %f mV \n temperature: %f \n", mv,temperature);
         vTaskDelay(pdSECOND);  
         processControlSignals &= ~(1<<0);
+        temperature >= 67 ? heater.setPinState(PINOUT::LOW) : heater.setPinState(PINOUT::HIGH);
     }
-    
     vTaskDelay(pdSECOND); 
         
 }
