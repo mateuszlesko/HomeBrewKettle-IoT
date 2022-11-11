@@ -1,0 +1,163 @@
+--- Using \\.\COM5 instead...
+C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py:518: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if StrictVersion(serial.VERSION) < StrictVersion('3.3.0'):
+--- idf_monitor on \\.\COM5 115200 ---
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
+ets Jun  8 2016 00:22:57
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:7392
+load:0x40078000,len:14948
+ho 0 tail 12 room 4
+load:0x40080400,len:3688
+0x40080400: _init at ??:?
+
+entry 0x4008067c
+I (29) boot: ESP-IDF v4.3.4 2nd stage bootloader
+I (29) boot: compile time 18:00:28
+I (29) boot: chip revision: 1
+I (31) boot_comm: chip revision: 1, min. bootloader chip revision: 0
+I (39) boot.esp32: SPI Speed      : 40MHz
+I (43) boot.esp32: SPI Mode       : DIO
+I (48) boot.esp32: SPI Flash Size : 2MB
+I (52) boot: Enabling RNG early entropy source...
+I (58) boot: Partition Table:
+I (61) boot: ## Label            Usage          Type ST Offset   Length
+I (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (83) boot:  2 factory          factory app      00 00 00010000 00100000
+I (91) boot: End of partition table
+I (95) boot_comm: chip revision: 1, min. application chip revision: 0
+I (102) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=07860h ( 30816) map
+I (122) esp_image: segment 1: paddr=00017888 vaddr=3ffb0000 size=02980h ( 10624) load
+I (126) esp_image: segment 2: paddr=0001a210 vaddr=40080000 size=05e08h ( 24072) load
+I (140) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=15444h ( 87108) map
+I (172) esp_image: segment 4: paddr=0003546c vaddr=40085e08 size=055ach ( 21932) load
+I (181) esp_image: segment 5: paddr=0003aa20 vaddr=50000000 size=00010h (    16) load
+I (187) boot: Loaded app from partition at offset 0x10000
+I (187) boot: Disabling RNG early entropy source...
+I (202) cpu_start: Pro cpu up.
+I (203) cpu_start: Starting app cpu, entry point is 0x4008104c
+0x4008104c: call_start_cpu1 at C:/Espressif/frameworks/esp-idf-v4.3.4/components/esp_system/port/cpu_start.c:150
+
+I (0) cpu_start: App cpu up.
+I (217) cpu_start: Pro cpu start user code
+I (217) cpu_start: cpu freq: 160000000
+I (217) cpu_start: Application information:
+I (221) cpu_start: Project name:     mash_tum_esp32
+I (227) cpu_start: App version:      4c834ef-dirty
+I (232) cpu_start: Compile time:     Nov  5 2022 00:36:35
+I (238) cpu_start: ELF file SHA256:  36dd0ecaf3770a59...
+I (244) cpu_start: ESP-IDF:          v4.3.4
+I (250) heap_init: Initializing. RAM available for dynamic allocation:
+I (257) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (263) heap_init: At 3FFB3300 len 0002CD00 (179 KiB): DRAM
+I (269) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (275) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (282) heap_init: At 4008B3B4 len 00014C4C (83 KiB): IRAM
+I (289) spi_flash: detected chip: generic
+I (293) spi_flash: flash io: dio
+W (296) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (311) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (321) SETUP: configuring general peryferials
+0.000061 sec
+0.999070 sec
+1.999064 sec
+2.999070 sec
+3.999063 sec
+4.999069 sec
+5.999062 sec
+6.999068 sec
+7.999062 sec
+8.999068 sec
+9.999061 sec
+10.999067 sec
+11.999061 sec
+12.999066 sec
+13.999060 sec
+14.999066 sec
+15.999071 sec
+16.999065 sec
+17.999071 sec
+18.999064 sec
+19.999070 sec
+20.999064 sec
+21.999069 sec
+22.999063 sec
+23.999069 sec
+24.999062 sec
+25.999068 sec
+26.999062 sec
+27.999067 sec
+28.999061 sec
+29.999067 sec
+30.999060 sec
+31.999066 sec
+32.999060 sec
+33.999066 sec
+34.999071 sec
+35.999065 sec
+36.999071 sec
+37.999064 sec
+38.999070 sec
+39.999064 sec
+40.999069 sec
+41.999063 sec
+42.999069 sec
+43.999062 sec
+44.999068 sec
+45.999062 sec
+46.999067 sec
+47.999061 sec
+48.999067 sec
+49.999060 sec
+50.999066 sec
+51.999060 sec
+52.999065 sec
+53.999071 sec
+54.999065 sec
+55.999071 sec
+56.999064 sec
+57.999070 sec
+58.999063 sec
+59.999069 sec
+0.249063 sec
+voltage: 142 mV
+ temperature: 3
+2.249062 sec
+3.249068 sec
+4.249062 sec
+5.249067 sec
+6.249061 sec
+7.249067 sec
+8.249060 sec
+9.249066 sec
+10.249060 sec
+
+Traceback (most recent call last):
+  File "C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py", line 569, in main_loop
+    item = self.cmd_queue.get_nowait()
+  File "queue.py", line 198, in get_nowait
+  File "queue.py", line 167, in get
+_queue.Empty
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py", line 1326, in <module>
+    main()
+  File "C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py", line 1139, in main
+    monitor.main_loop()
+  File "C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py", line 572, in main_loop
+    item = self.event_queue.get(True, 0.03)
+  File "queue.py", line 179, in get
+  File "threading.py", line 306, in wait
+KeyboardInterrupt
+
+Aborted!
+
+E:\mash_tum_esp32>

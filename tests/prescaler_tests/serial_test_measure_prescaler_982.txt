@@ -1,0 +1,248 @@
+E:\mash_tum_esp32>echo "prescaler 982"
+"prescaler 982"
+
+E:\mash_tum_esp32>idf.py -p COM5 flash monitor
+Executing action: flash
+Running ninja in directory e:\mash_tum_esp32\build
+Executing "ninja flash"...
+[1/4] Performing build step for 'bootloader'
+ninja: no work to do.
+[1/2] cmd.exe /C "cd /D C:\Espressif\frameworks\esp-idf-v4...sp-idf-v4.3.4/components/esptool_py/run_serial_tool.cmake"
+esptool.py esp32 -p COM5 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 2MB 0x8000 partition_table/partition-table.bin 0x1000 bootloader/bootloader.bin 0x10000 mash_tum_esp32.bin
+esptool.py v3.3.2-dev
+Serial port COM5
+Connecting....
+Chip is ESP32-D0WDQ6 (revision 1)
+Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
+Crystal is 40MHz
+MAC: 94:b5:55:26:ae:00
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00001000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x0003afff...
+Compressed 3072 bytes to 103...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (103 compressed) at 0x00008000 in 0.1 seconds (effective 314.3 kbit/s)...
+Hash of data verified.
+Compressed 26112 bytes to 16050...
+Writing at 0x00001000... (100 %)
+Wrote 26112 bytes (16050 compressed) at 0x00001000 in 0.8 seconds (effective 257.1 kbit/s)...
+Hash of data verified.
+Compressed 174752 bytes to 91742...
+Writing at 0x00010000... (16 %)
+Writing at 0x0001b4c8... (33 %)
+Writing at 0x00020c08... (50 %)
+Writing at 0x00026681... (66 %)
+Writing at 0x0002edf4... (83 %)
+Writing at 0x0003703a... (100 %)
+Wrote 174752 bytes (91742 compressed) at 0x00010000 in 2.5 seconds (effective 555.8 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory e:\mash_tum_esp32
+Executing "C:\Espressif\python_env\idf4.3_py3.8_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py -p COM5 -b 115200 --toolchain-prefix xtensa-esp32-elf- e:\mash_tum_esp32\build\mash_tum_esp32.elf -m 'C:\Espressif\python_env\idf4.3_py3.8_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v4.3.4\tools\idf.py' '-p' 'COM5'"...
+--- WARNING: GDB cannot open serial ports accessed as COMx
+--- Using \\.\COM5 instead...
+C:\Espressif\frameworks\esp-idf-v4.3.4\tools/idf_monitor.py:518: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if StrictVersion(serial.VERSION) < StrictVersion('3.3.0'):
+--- idf_monitor on \\.\COM5 115200 ---
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
+ets Jun  8 2016 00:22:57
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:7392
+load:0x40078000,len:14948
+ho 0 tail 12 room 4
+load:0x40080400,len:3688
+0x40080400: _init at ??:?
+
+entry 0x4008067c
+I (29) boot: ESP-IDF v4.3.4 2nd stage bootloader
+I (29) boot: compile time 18:00:28
+I (29) boot: chip revision: 1
+I (32) boot_comm: chip revision: 1, min. bootloader chip revision: 0
+I (39) boot.esp32: SPI Speed      : 40MHz
+I (43) boot.esp32: SPI Mode       : DIO
+I (48) boot.esp32: SPI Flash Size : 2MB
+I (52) boot: Enabling RNG early entropy source...
+I (58) boot: Partition Table:
+I (61) boot: ## Label            Usage          Type ST Offset   Length
+I (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (83) boot:  2 factory          factory app      00 00 00010000 00100000
+I (91) boot: End of partition table
+I (95) boot_comm: chip revision: 1, min. application chip revision: 0
+I (102) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=07860h ( 30816) map
+I (122) esp_image: segment 1: paddr=00017888 vaddr=3ffb0000 size=02980h ( 10624) load
+I (126) esp_image: segment 2: paddr=0001a210 vaddr=40080000 size=05e08h ( 24072) load
+I (140) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=15484h ( 87172) map
+I (172) esp_image: segment 4: paddr=000354ac vaddr=40085e08 size=055ach ( 21932) load
+I (181) esp_image: segment 5: paddr=0003aa60 vaddr=50000000 size=00010h (    16) load
+I (187) boot: Loaded app from partition at offset 0x10000
+I (187) boot: Disabling RNG early entropy source...
+I (202) cpu_start: Pro cpu up.
+I (203) cpu_start: Starting app cpu, entry point is 0x4008104c
+0x4008104c: call_start_cpu1 at C:/Espressif/frameworks/esp-idf-v4.3.4/components/esp_system/port/cpu_start.c:150
+
+I (0) cpu_start: App cpu up.
+I (217) cpu_start: Pro cpu start user code
+I (217) cpu_start: cpu freq: 160000000
+I (217) cpu_start: Application information:
+I (221) cpu_start: Project name:     mash_tum_esp32
+I (227) cpu_start: App version:      4c834ef-dirty
+I (232) cpu_start: Compile time:     Nov  5 2022 00:36:35
+I (239) cpu_start: ELF file SHA256:  3c7a384c4d57d4ac...
+I (245) cpu_start: ESP-IDF:          v4.3.4
+I (250) heap_init: Initializing. RAM available for dynamic allocation:
+I (257) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (263) heap_init: At 3FFB3300 len 0002CD00 (179 KiB): DRAM
+I (269) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (275) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (282) heap_init: At 4008B3B4 len 00014C4C (83 KiB): IRAM
+I (289) spi_flash: detected chip: generic
+I (293) spi_flash: flash io: dio
+W (297) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (311) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+I (321) SETUP: configuring general peryferials
+0.000061 sec
+0.999075 sec
+1.999070 sec
+2.999065 sec
+3.999072 sec
+4.999067 sec
+5.999075 sec
+6.999070 sec
+7.999065 sec
+8.999073 sec
+9.999068 sec
+10.999063 sec
+11.999070 sec
+12.999065 sec
+13.999073 sec
+14.999068 sec
+15.999063 sec
+16.999071 sec
+17.999066 sec
+18.999073 sec
+19.999068 sec
+20.999063 sec
+21.999071 sec
+22.999066 sec
+23.999073 sec
+24.999069 sec
+25.999064 sec
+26.999071 sec
+27.999066 sec
+28.999074 sec
+29.999069 sec
+30.999064 sec
+31.999071 sec
+32.999067 sec
+33.999074 sec
+34.999069 sec
+35.999064 sec
+36.999072 sec
+37.999067 sec
+38.999074 sec
+39.999069 sec
+40.999065 sec
+41.999072 sec
+42.999067 sec
+43.999075 sec
+44.999070 sec
+45.999065 sec
+46.999072 sec
+47.999068 sec
+48.999075 sec
+49.999070 sec
+50.999065 sec
+51.999073 sec
+52.999068 sec
+53.999063 sec
+54.999070 sec
+55.999066 sec
+56.999073 sec
+57.999068 sec
+58.999063 sec
+59.999071 sec
+60.999066 sec
+0.624073 sec
+voltage: 1695.000000 mV
+ temperature: 42.399998
+2.624064 sec
+3.624071 sec
+4.624066 sec
+5.624074 sec
+6.624069 sec
+7.624064 sec
+8.624071 sec
+9.624066 sec
+10.624074 sec
+11.624069 sec
+12.624064 sec
+13.624072 sec
+14.624067 sec
+15.624074 sec
+16.624069 sec
+17.624064 sec
+18.624072 sec
+19.624067 sec
+20.624074 sec
+21.624070 sec
+22.624065 sec
+23.624072 sec
+24.624067 sec
+25.624075 sec
+26.624070 sec
+27.624065 sec
+28.624073 sec
+29.624068 sec
+30.624063 sec
+31.624070 sec
+32.624065 sec
+33.624073 sec
+34.624068 sec
+35.624063 sec
+36.624071 sec
+37.624066 sec
+38.624073 sec
+39.624068 sec
+40.624063 sec
+41.624071 sec
+42.624066 sec
+43.624073 sec
+44.624069 sec
+45.624064 sec
+46.624071 sec
+47.624066 sec
+48.624074 sec
+49.624069 sec
+50.624064 sec
+51.624071 sec
+52.624067 sec
+53.624074 sec
+54.624069 sec
+55.624064 sec
+56.624072 sec
+57.624067 sec
+58.624074 sec
+59.624069 sec
+60.624065 sec
+0.249072 sec
+voltage: 1695.000000 mV
+ temperature: 42.375000
+2.249075 sec
+3.249070 sec
+4.249065 sec
+5.249072 sec

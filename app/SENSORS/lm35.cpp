@@ -7,8 +7,8 @@ void LM35::setADC(ADC::PinADC1 _adc)
     adc = _adc;
 }
 
-double LM35::readTemperature()
+int LM35::readTemperature()
 {
-    double data = (double)adc.measure() * 0.01;
-    return data;
+    int data = (int)(adc.measure() * 0.01);
+    return 3 * data;
 }
