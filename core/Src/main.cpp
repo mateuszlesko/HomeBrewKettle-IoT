@@ -35,7 +35,7 @@ extern "C"
         
         intervalTimerSem = xSemaphoreCreateBinary();
         timer_config_t config;
-        config.divider = (pdMS_TO_TICKS(1000));
+        config.divider = 972;
         config.counter_dir = TIMER_COUNT_UP;
         config.counter_en = TIMER_PAUSE;
         config.alarm_en = TIMER_ALARM_EN;
@@ -45,7 +45,7 @@ extern "C"
         timer_init(TIMER_GROUP_0, TIMER_0, &config);
         timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0); //select timer and set init value
         /* Base clock speed of ESP32 is 80MHz, we want down it do like 5kHz. To acomplish that we need to set prescaler as a time divider*/
-        timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, (TIMER_BASE_CLK / TIMER_DIVIDER)); // = 80MHz / 16 MHz = 5MHz
+        timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, (TIMER_BASE_CLK / TIMER_DIVIDER)); // = 80MHz / 16 MHz = 5 Hz
         timer_enable_intr(TIMER_GROUP_0, TIMER_0);
         timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_group_isr_callback, NULL, 0);
         timer_start(TIMER_GROUP_0, TIMER_0);
@@ -78,12 +78,15 @@ esp_err_t Main::setupHardware(void)
 
 void Main::run(void)
 {
-    float temperature = 0.0f;
+    int temperature = 0;
+    double sec = 0;
+    timer_get_counter_time_sec(TIMER_GROUP_0, TIMER_0,&sec);
+    printf("%f sec \n",sec);
     if(processControlSignals & (1<<0))
     {
-        float mv = sensor1.measure();
+        int mv = sensor1.measure();
         temperature = lm35.readTemperature();
-        printf("voltage: %f mV \n temperature: %f \n", mv,temperature);
+        printf("voltage: %d mV \n temperature: %d \n", mv,temperature);
         vTaskDelay(pdSECOND);  
         processControlSignals &= ~(1<<0);
         temperature >= 67 ? heater.setPinState(PINOUT::LOW) : heater.setPinState(PINOUT::HIGH);

@@ -34,7 +34,7 @@ void PinADC1::setSamples(int s)
     samples = s;
 }
 
-float PinADC1::measure()
+int PinADC1::measure()
 {
     int mV = 0;
     for(int i = 0; i < samples;i++)
@@ -42,7 +42,7 @@ float PinADC1::measure()
         mV += esp_adc_cal_raw_to_voltage(adc1_get_raw(channel), &adc1_chars);
     };
     //uint32_t val = adc1_get_raw(channel);
-    float avg = mV / samples;
+    int avg = mV / samples;
     return avg;
 }
 
