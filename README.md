@@ -1,11 +1,17 @@
-# mash_tum_esp32
-control system for beer mash tum with IoT features
+# HomeBrewKettle-IoT
+## About the project
+This repository is one part of my engineer thesis - creating home mikrobrewery with IoT features. 
+
+The repository is focused of creating control system for home brew kettle based of microcontroller ESP32 NODE MCU.
 
 ## Hardware:
-* LM35 ( 0 to 120 C)
-* ESP32
-* HEATER (2.4 kW)
+- microcontroller ESP32 NODE MCU
+- 2x temperature sensors LM35
+- modified cooker with heater (2.4kV)
+- pump
+- 3x LED diodes
+- 1x button
 
-
-### Secure measurements : estimating median
-The classical mean is susceptible to outliers that can diametrically affect the mean value. Counting the median solves this problem.
+## Stack:
+- C : Espressif IoT Framework
+- CPP
