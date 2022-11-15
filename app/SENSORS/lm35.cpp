@@ -7,8 +7,12 @@ void LM35::setADC(ADC::PinADC1 _adc)
     adc = _adc;
 }
 
-int LM35::readTemperature()
+double LM35::readTemperature()
 {
-    int data = (int)(adc.measure() * 0.01);
-    return 3 * data;
+    double val = adc.measure();
+    double scale = (val / 2048.0) * 3300.0;
+    double tempC = scale / 10;
+//    int data = (int)(adc.measure() * 0.01);
+//    return 3 * data;
+    return tempC;
 }

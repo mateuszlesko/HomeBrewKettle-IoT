@@ -31,7 +31,7 @@ namespace ADC{
         void calibrateADC();
         void configureADC();
         void setSamples(int s);
-        int measure();
+        double measure();
     };
 }
 

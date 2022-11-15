@@ -12,16 +12,17 @@ PINOUT::PinOutput heater(PINOUT::HEATER_PIN);
 ADC::PinADC1 sensor1;
 SENSORS::LM35 lm35;
 
-static int a = 0;
 //static SemaphoreHandle_t intervalTimerSem;
 unsigned char processControlSignals = 0x0;
+RecipeStage recipe[] = {{48,16},{60,6}};
+int currentRecipeIndex;
+int temperatureHolding;
+
 extern "C" 
 {
     
     static bool IRAM_ATTR timer_group_isr_callback(void * args)
     {
-        a++;
-        
         BaseType_t high_task_awoken = pdFALSE;
         xSemaphoreGiveFromISR(intervalTimerSem, &high_task_awoken);
         processControlSignals |= (1 << 0);
@@ -35,7 +36,7 @@ extern "C"
         
         intervalTimerSem = xSemaphoreCreateBinary();
         timer_config_t config;
-        config.divider = 972;
+        config.divider = 16;//972; //for 1 min
         config.counter_dir = TIMER_COUNT_UP;
         config.counter_en = TIMER_PAUSE;
         config.alarm_en = TIMER_ALARM_EN;
@@ -78,20 +79,53 @@ esp_err_t Main::setupHardware(void)
 
 void Main::run(void)
 {
-    int temperature = 0;
-    double sec = 0;
-    timer_get_counter_time_sec(TIMER_GROUP_0, TIMER_0,&sec);
-    printf("%f sec \n",sec);
-    if(processControlSignals & (1<<0))
+    double temperature = 0.0;
+    //if(processControlSignals & (1<<0))
+    if((processControlSignals & (1<<0)) && (processControlSignals & ~(1<<1)))
     {
-        int mv = sensor1.measure();
+        double mv = sensor1.measure();
         temperature = lm35.readTemperature();
-        printf("voltage: %d mV \n temperature: %d \n", mv,temperature);
+        printf("voltage: %lf mV \n temperature: %lf C \n stage temperature: %d C\n holdtime: %d min \n current holdtime %d min \n", mv ,temperature,recipe[currentRecipeIndex].TemperatureC,recipe[currentRecipeIndex].HoldingTime,temperatureHolding);
         vTaskDelay(pdSECOND);  
         processControlSignals &= ~(1<<0);
-        temperature >= 67 ? heater.setPinState(PINOUT::LOW) : heater.setPinState(PINOUT::HIGH);
+        //temperature >= 67 ? heater.setPinState(PINOUT::LOW) : heater.setPinState(PINOUT::HIGH);
+        
+        //checking if duration of temperature holding is equal recipe's holding time
+        if(temperatureHolding == recipe[currentRecipeIndex].HoldingTime)
+        {
+            temperatureHolding=0;
+            
+            if(currentRecipeIndex < 2)
+            {
+                 currentRecipeIndex++;
+            }
+            else
+            {
+                 processControlSignals |= (1 << 1);
+            }
+        }
+        //checking if duration of temperature is equal recipe's temperature
+        if(temperature < recipe[currentRecipeIndex].TemperatureC)
+        {
+            heater.setPinState(PINOUT::HIGH);
+        }
+        if((temperature <= recipe[currentRecipeIndex].TemperatureC+0.5 && temperature >= recipe[currentRecipeIndex].TemperatureC) || (temperature >= recipe[currentRecipeIndex].TemperatureC-0.5 && temperature <= recipe[currentRecipeIndex].TemperatureC))
+        {
+            temperatureHolding++;
+        }
+        if(temperature >= recipe[currentRecipeIndex].TemperatureC)
+        {
+            heater.setPinState(PINOUT::LOW);
+        }
     }
-    vTaskDelay(pdSECOND); 
+    //after all stages was done
+    if(processControlSignals & (1<<1))
+    {
+        //processControlSignals &= ~(1<<1);
+        timer_pause(TIMER_GROUP_0, TIMER_0);
+        printf("Recipe done");
+        exit(0);
+    }
         
 }
     
