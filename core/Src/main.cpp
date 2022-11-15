@@ -36,7 +36,7 @@ extern "C"
         
         intervalTimerSem = xSemaphoreCreateBinary();
         timer_config_t config;
-        config.divider = 16;//972; //for 1 min
+        config.divider = 972; //for 1 min
         config.counter_dir = TIMER_COUNT_UP;
         config.counter_en = TIMER_PAUSE;
         config.alarm_en = TIMER_ALARM_EN;
