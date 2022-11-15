@@ -8,7 +8,7 @@ namespace SENSORS{
         public:
         ADC::PinADC1 adc;
         void setADC(ADC::PinADC1 _adc);
-        float readTemperature();
+        double readTemperature();
     };   
 }
 #endif

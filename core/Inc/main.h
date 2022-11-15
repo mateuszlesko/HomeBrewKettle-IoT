@@ -13,6 +13,7 @@
 #include "../../app/PINOUT/Pinout.h"
 #include "../../app/ADC/PinADC1.h"
 #include "../../app/SENSORS/LM35.h"
+#include "../../app/PROCESS_CONTROL/RecipeStage.h"
 
 #define SETUP_LOG_TAG "SETUP"
 #define MAIN_LOG_TAG "MAIN"
