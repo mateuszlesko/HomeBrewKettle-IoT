@@ -15,6 +15,7 @@ SENSORS::LM35 lm35;
 //static SemaphoreHandle_t intervalTimerSem;
 unsigned char processControlSignals = 0x0;
 RecipeStage recipe[] = {{48,16},{60,6}};
+double temperature = 0.0;
 int currentRecipeIndex;
 int temperatureHolding;
 
@@ -36,7 +37,7 @@ extern "C"
         
         intervalTimerSem = xSemaphoreCreateBinary();
         timer_config_t config;
-        config.divider = 972; //for 1 min
+        config.divider = 572;//972; //for 1 min
         config.counter_dir = TIMER_COUNT_UP;
         config.counter_en = TIMER_PAUSE;
         config.alarm_en = TIMER_ALARM_EN;
@@ -51,6 +52,7 @@ extern "C"
         timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_group_isr_callback, NULL, 0);
         timer_start(TIMER_GROUP_0, TIMER_0);
         
+        printf("Config done");
         while(true)
         {
             m.run();
@@ -79,7 +81,7 @@ esp_err_t Main::setupHardware(void)
 
 void Main::run(void)
 {
-    double temperature = 0.0;
+    
     //if(processControlSignals & (1<<0))
     if((processControlSignals & (1<<0)) && (processControlSignals & ~(1<<1)))
     {
@@ -126,6 +128,6 @@ void Main::run(void)
         printf("Recipe done");
         exit(0);
     }
-        
+     vTaskDelay(pdSECOND);   
 }
     
