@@ -1,6 +1,6 @@
-#ifndef STATE_MACHINE
+#ifndef STATE_MACHINE_H
 
-#define STATE_MACHINE
+#define STATE_MACHINE_H
     
     typedef enum
     {
