@@ -13,8 +13,11 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
 #include "../../app/STATE_MACHINE/state_machine.h"
 #include "../../app/ADC/adc.h"
+//#include "../../app/WIFI/wifi.h"
 
 
 #define HARDWARE_SETUP_TAG "SETUP: HARDWARE"
@@ -30,5 +33,7 @@ static SemaphoreHandle_t intervalTimerSem;
 static SystemState actual_state = RESET;
 
 void configureHardware(void);
+
+//static WiFi *p_wifi;
 
 #endif
