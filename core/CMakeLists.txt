@@ -8,4 +8,6 @@ idf_component_register(SRCS ${SOURCES}
                             esp_event 
                             nvs_flash
                             esp_adc_cal
+                            esp_http_client
+                            json
                             )

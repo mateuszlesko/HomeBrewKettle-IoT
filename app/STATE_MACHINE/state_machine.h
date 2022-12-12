@@ -5,8 +5,8 @@
     typedef enum
     {
         RESET,
-        OFFLINE,
         SETUP,
+        OFFLINE,
         ONLINE,
         IDLE,
         PROCCEED,
