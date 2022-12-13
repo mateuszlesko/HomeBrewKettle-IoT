@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+#define ACCURACY 2 
+
 typedef struct{
     uint16_t control_signals;
     int mashing_id;
@@ -19,5 +21,6 @@ typedef struct{
 
 //extern int *mashing_temperatures;
 //extern int *mashing_temperature_holdings;
-
+extern int actual_stage;
+extern int actual_time_holding;
 #endif

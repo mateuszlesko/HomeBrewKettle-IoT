@@ -13,6 +13,9 @@ static SemaphoreHandle_t s_timer_sem;
 int mashing_temperatures[MAX_STAGES_NUM];
 int mashing_temperature_holdings[MAX_STAGES_NUM];
 
+int actual_stage = 0;
+int actual_time_holding = 0;
+
 static bool IRAM_ATTR timer_group_isr_callback(void * args)
 {
     BaseType_t high_task_awoken = pdFALSE;
@@ -67,7 +70,7 @@ void app_main(void)
       
     actual_state = ONLINE;
     
-    uint32_t mv1,tmp1 = 0;
+    uint32_t mv1,t = 0;
     
     vTaskDelay(500);
     
@@ -75,26 +78,6 @@ void app_main(void)
     
     actual_state = IDLE;
     
-//    if(p_mashing != NULL)
-//    {
-//        free(p_mashing);
-//        p_mashing = NULL;
-//    }
-//    if(mashing_temperatures != NULL)
-//    {
-//        free(mashing_temperatures);
-//        mashing_temperatures = NULL;
-//    }
-//    if(mashing_temperature_holdings != NULL)
-//    {
-//        free(mashing_temperature_holdings);
-//        mashing_temperature_holdings = NULL;
-//    }
-//    if(http_data_buffer != NULL)
-//    {
-//        free(http_data_buffer);
-//        http_data_buffer = NULL;
-//    }
     HTTP_GET_mashing_procedure();
     ESP_LOGI(DEBUG_TAG,"%s",http_data_buffer);
     //p_mashing = (Mashing*) malloc(sizeof(Mashing));
@@ -114,11 +97,34 @@ void app_main(void)
     {
       if(sec_counter == 30)
       {
+        int ref = mashing_temperatures[actual_stage];
         timer_pause(TIMER_GROUP_0,TIMER_0);
         mv1 = measure_mV_method1(p_adc1);
-        tmp1 = mv1 / 10;
-        ESP_LOGI(MEASUREMENT_TAG, "ADC : %d mV = %d C", mv1,tmp1);   
-        HTTP_GET_mashing_raport(1,1,tmp1,tmp1,5);
+        t = mv1 / 10;
+        if(actual_stage == p_m->num_stages)
+        {
+            break;
+        }
+        if(actual_time_holding == 2*60*mashing_temperature_holdings[actual_stage])
+        {
+            actual_time_holding = 0;
+            actual_stage++;
+        }
+        
+        if((t - ACCURACY <= ref) && (t + ACCURACY < ref))
+        {
+           ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",actual_time_holding,2*60*mashing_temperature_holdings[actual_stage]);
+           actual_time_holding++;
+           gpio_set_level(GPIO_NUM_4,1);
+        }
+          
+        if(!((t - ACCURACY <= ref) && (t + ACCURACY < ref)))
+        {
+           gpio_set_level(GPIO_NUM_4,0);
+        }
+           
+        ESP_LOGI(MEASUREMENT_TAG, "ADC : %d mV = %d C", mv1,t);   
+        HTTP_GET_mashing_raport(1,1,t,t,5);
         sec_counter = 0;
         timer_start(TIMER_GROUP_0,TIMER_0);
       }
