@@ -18,25 +18,9 @@
         int samples;
     }PinADC1;
 
-    typedef struct 
-    {
-        adc2_channel_t channel;
-        adc_atten_t atten;
-        adc_bits_width_t width;
-        esp_adc_cal_characteristics_t *p_characts;
-        int samples;
-    }PinADC2;
-
-    typedef union{
-        PinADC1 *adc_1;
-        PinADC2 *adc_2;
-    }PinADC;
-
     uint32_t measure_mV_method1(PinADC1 *adc);
-    int measure_method2(PinADC1 *adc);
 
     void configure_adc1(PinADC1 *adc);
-    void configure_adc2(PinADC2 *adc);
 
 //    PinADC1 adc1 = {
 //    .channel = ADC_CHANNEL_7,

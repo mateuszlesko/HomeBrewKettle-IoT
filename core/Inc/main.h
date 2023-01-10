@@ -36,4 +36,12 @@ static bool IRAM_ATTR timer_group_isr_callback(void * args);
 
 static SystemState actual_state = RESET;
 
+//static unsigned char control_signals = 0x00;
+
+#define MISFUNCTION_BIT 4
+#define IDLE_BIT 5
+#define IN_PROCESS_BIT 6
+#define FINISH_PROCESS_BIT 7
+
+
 #endif

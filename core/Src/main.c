@@ -1,8 +1,9 @@
 #include "main.h"
 
-
-esp_adc_cal_characteristics_t p35_adc1_characts;
-PinADC1 *p_adc1;
+esp_adc_cal_characteristics_t bottom_sensor_adc1_characts;
+esp_adc_cal_characteristics_t top_sensor_adc1_characts;
+PinADC1 *p_sensor_bottom; // sensor at the bottom
+PinADC1 *p_sensor_top; // sensor at the top
 
 //uint8_t process_control_signals = 0;
 
@@ -32,15 +33,23 @@ void app_main(void)
     gpio_reset_pin(GPIO_NUM_4);
     gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
     
-    free(p_adc1);
-    p_adc1 = (PinADC1*)calloc(1,sizeof(PinADC1));
-    p_adc1->channel = ADC_CHANNEL_7;
-    p_adc1->atten = ADC_ATTEN_DB_11;
-    p_adc1->width = ADC_WIDTH_BIT_11;
-    p_adc1->samples = 32;
-    p_adc1->p_characts = &p35_adc1_characts;
-     
-    configure_adc1(p_adc1);
+    free(p_sensor_bottom);
+    p_sensor_bottom = (PinADC1*)calloc(1,sizeof(PinADC1));
+    p_sensor_bottom->channel = ADC_CHANNEL_7;
+    p_sensor_bottom->atten = ADC_ATTEN_DB_11;
+    p_sensor_bottom->width = ADC_WIDTH_BIT_11;
+    p_sensor_bottom->samples = 32;
+    p_sensor_bottom->p_characts = &bottom_sensor_adc1_characts;
+    configure_adc1(p_sensor_bottom);
+    
+    free(p_sensor_top);
+    p_sensor_top = (PinADC1*)calloc(1, sizeof(PinADC1));
+    p_sensor_top->channel = ADC_CHANNEL_6;
+    p_sensor_top->atten = ADC_ATTEN_DB_11;
+    p_sensor_top->width = ADC_WIDTH_BIT_11;
+    p_sensor_top->samples = 32;
+    p_sensor_top->p_characts = &top_sensor_adc1_characts;
+    configure_adc1(p_sensor_top);
 //    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_11);
 //    adc1_config_width(ADC_WIDTH_BIT_11);
 //    esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_11, 0, &adc1_chars);
@@ -70,7 +79,7 @@ void app_main(void)
       
     actual_state = ONLINE;
     
-    uint32_t mv1,t = 0;
+    uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
     
     vTaskDelay(500);
     
@@ -99,11 +108,17 @@ void app_main(void)
       {
         int ref = mashing_temperatures[actual_stage];
         timer_pause(TIMER_GROUP_0,TIMER_0);
-        mv1 = measure_mV_method1(p_adc1);
-        t = mv1 / 10;
+        bottom_sensor_measurement = measure_mV_method1(p_sensor_bottom);
+        top_sensor_measurement = measure_mV_method1(p_sensor_top);
+        bottom_temperature = bottom_sensor_measurement / 10;
+        top_temperature = top_sensor_measurement / 10;
+        
+        average_temperature = (bottom_temperature + top_temperature) / 2;
         if(actual_stage == p_m->num_stages)
         {
-            break;
+            //control_signals = 0x00;
+            
+            continue;
         }
         if(actual_time_holding == 2*60*mashing_temperature_holdings[actual_stage])
         {
@@ -111,20 +126,20 @@ void app_main(void)
             actual_stage++;
         }
         
-        if((t - ACCURACY <= ref) && (t + ACCURACY < ref))
+        if((average_temperature - ACCURACY <= ref) && (average_temperature + ACCURACY < ref))
         {
            ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",actual_time_holding,2*60*mashing_temperature_holdings[actual_stage]);
            actual_time_holding++;
            gpio_set_level(GPIO_NUM_4,1);
         }
           
-        if(!((t - ACCURACY <= ref) && (t + ACCURACY < ref)))
+        if(!((average_temperature - ACCURACY <= ref) && (average_temperature + ACCURACY < ref)))
         {
            gpio_set_level(GPIO_NUM_4,0);
         }
            
-        ESP_LOGI(MEASUREMENT_TAG, "ADC : %d mV = %d C", mv1,t);   
-        HTTP_GET_mashing_raport(1,1,t,t,5);
+        ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C ", bottom_sensor_measurement,bottom_temperature,top_sensor_measurement,top_temperature);   
+        HTTP_GET_mashing_raport(1,1,bottom_temperature,top_temperature,5);
         sec_counter = 0;
         timer_start(TIMER_GROUP_0,TIMER_0);
       }
