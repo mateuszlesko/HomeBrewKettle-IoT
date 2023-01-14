@@ -9,4 +9,5 @@
 
 void deserialize_json_to_mashing_recipe(char* json, Mashing *p_mashing, int* temperatures, int* durations);
 
+void deserialize_json_to_remote_control(char* json, RemoteControl *p_rc);
 #endif

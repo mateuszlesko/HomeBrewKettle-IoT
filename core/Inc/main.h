@@ -30,11 +30,9 @@
 
 #define TIMER_DIVIDER   (40000)
 
-#define MAX_STAGES_NUM  8
+#define MAX_STAGES_NUM  10
 
 static bool IRAM_ATTR timer_group_isr_callback(void * args);
-
-static SystemState actual_state = RESET;
 
 //static unsigned char control_signals = 0x00;
 
