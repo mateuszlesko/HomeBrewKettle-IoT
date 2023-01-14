@@ -1,4 +1,4 @@
-set(SOURCES PinADC1.cpp)
+set(SOURCES adc.c)
 
 idf_component_register(SRCS ${SOURCES}
                         INCLUDE_DIRS .

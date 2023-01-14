@@ -4,12 +4,21 @@ Prescaler is a divider for timer, the purpose is to slow down timer counting by 
 
 ## Goal: 
 The goal is to set prescaler value for ESP32 timer,  timer counter should overflow during __1 min__.
+<<<<<<< HEAD
+=======
+## Tests cases:
+
+>>>>>>> a7b3513bb6b34af888b0dd8813c3e9e4c16e4598
 
 ## How test was conducted?
 
 The test was conducted by using ESP-IDF fuction 
 `` esp_err_t timer_get_counter_time_sec(timer_group_tgroup_num, timer_idx_ttimer_num, double *time) ``
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a7b3513bb6b34af888b0dd8813c3e9e4c16e4598
 ## Test enviroment:
 
 __Device:__  NODE MCU ESP32 - WROOM U - 80 MHz
@@ -69,4 +78,8 @@ __Result expected:__ +-60 secs
 __Actual result:__ +- 60 secs ✔️
 
 ## Test result:
+<<<<<<< HEAD
 The best prescaler value will be between 930 and 982 - validated. ✔️
+=======
+The best prescaler value will be between 930 and 982 - validated. ✔️
+>>>>>>> a7b3513bb6b34af888b0dd8813c3e9e4c16e4598

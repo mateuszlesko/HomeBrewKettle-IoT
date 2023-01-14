@@ -1,4 +1,4 @@
-set(SOURCES ./Src/main.cpp)
+set(SOURCES ./Src/main.c)
 
 idf_component_register(SRCS ${SOURCES}
                         INCLUDE_DIRS . Inc
@@ -8,6 +8,6 @@ idf_component_register(SRCS ${SOURCES}
                             esp_event 
                             nvs_flash
                             esp_adc_cal
-                            ADC
-                            SENSORS
+                            esp_http_client
+                            json
                             )
