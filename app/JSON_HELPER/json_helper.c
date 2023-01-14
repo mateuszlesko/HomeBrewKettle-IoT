@@ -6,19 +6,24 @@ void deserialize_json_to_mashing_recipe(char* json, Mashing *p_mashing, int* tem
 	p_mashing->mashing_id = cJSON_GetObjectItem(root2,"MID")->valueint;
     p_mashing->recipe_id = cJSON_GetObjectItem(root2,"RID")->valueint;
     
-    int pc = cJSON_GetObjectItem(root2,"PC")->valueint;
-    p_mashing->num_stages = pc;
+    p_mashing->num_stages = cJSON_GetObjectItem(root2,"PC")->valueint;
       
     cJSON *temperatures_json= cJSON_GetObjectItem(root2,"MTpL");
     
-    for (int i = 0; i < pc; i++) 
+    for (int i = 0; i < p_mashing->num_stages; i++) 
     {
         temperatures[i] = cJSON_GetArrayItem(temperatures_json, i)->valueint;
 	}
     cJSON *time_durations_json = cJSON_GetObjectItem(root2,"MTmL");
-    for(int i = 0; i < pc; i++)
+    for(int i = 0; i < p_mashing->num_stages; i++)
     {
         durations[i] = cJSON_GetArrayItem(time_durations_json, i)->valueint;
     }
+    cJSON_Delete(root2);
+}
+
+void deserialize_json_to_remote_control(char* json, RemoteControl *p_rc){
+    cJSON *root2 = cJSON_Parse(json);
+    p_rc->control_signals = cJSON_GetObjectItem(root2,"cs")->valueint;
     cJSON_Delete(root2);
 }
