@@ -41,5 +41,4 @@ static bool IRAM_ATTR timer_group_isr_callback(void * args);
 #define IN_PROCESS_BIT 6
 #define FINISH_PROCESS_BIT 7
 
-
 #endif

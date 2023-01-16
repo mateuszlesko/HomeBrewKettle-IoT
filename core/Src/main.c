@@ -23,8 +23,10 @@ void app_main(void)
 { 
     ESP_LOGI(HARDWARE_SETUP_TAG, "Configuring hardware");
     
-    gpio_reset_pin(GPIO_NUM_4);
-    gpio_set_direction(GPIO_NUM_4, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(HEATER_GPIO);
+    gpio_set_direction(HEATER_GPIO, GPIO_MODE_OUTPUT);
+    gpio_reset_pin(PUMP_GPIO);
+    gpio_set_direction(PUMP_GPIO, GPIO_MODE_OUTPUT);
     
     free(p_sensor_bottom);
     p_sensor_bottom = (PinADC1*)calloc(1,sizeof(PinADC1));
@@ -95,6 +97,8 @@ void app_main(void)
         // check if the procedure reach its end
         if(p_m->actual_stage == p_m->num_stages)
         { 
+            gpio_set_level(HEATER_GPIO,0);
+            gpio_set_level(PUMP_GPIO,0);
             send_http_get_request(PROCEDURE_FINISH_URL ,http_get_request_w_no_return);
             continue;
         }
@@ -103,19 +107,23 @@ void app_main(void)
         send_http_get_request(REMOTE_CONTROL_URL, http_get_request_w_return);
         deserialize_json_to_remote_control(http_data_buffer, p_rc);
         //check if procedure has to be paused
-        if(p_rc->control_signals & ~(1<<0))
+        if((p_rc->control_signals == REMOTE_PROCESS_PAUSE) || (p_rc->control_signals == REMOTE_PROCESS_FINISH))
         {
             gpio_set_level(HEATER_GPIO,0);
+            gpio_set_level(PUMP_GPIO,0);
             continue;
         }  
          
         // check if the temperautre time holding equals the one in recipe
-        if(p_m->actual_time_holding == 2*60*mashing_temperature_holdings[p_m->actual_stage])
+        //120 because: mashing times is in minutes and we checking it every 30s
+        if(p_m->actual_time_holding == 120*mashing_temperature_holdings[p_m->actual_stage])
         {
             p_m->actual_time_holding = 0;
             p_m->actual_stage++;
         }
-          
+        
+        gpio_set_level(PUMP_GPIO,1);
+        
         int ref_temperature = mashing_temperatures[p_m->actual_stage];
         bottom_sensor_measurement = measure_mV_method1(p_sensor_bottom);
         top_sensor_measurement = measure_mV_method1(p_sensor_top);
@@ -137,7 +145,7 @@ void app_main(void)
         }
            
         ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C ", bottom_sensor_measurement,bottom_temperature,top_sensor_measurement,top_temperature);   
-        sprintf(process_raport_url,MASHING_RAPORT_URL,p_m->recipe_id, p_m->actual_stage,bottom_temperature,top_temperature,0);
+        sprintf(process_raport_url,MASHING_RAPORT_URL,p_m->recipe_id, p_m->actual_stage,bottom_temperature,top_temperature,0,CALC_INTER_TO_MIN(p_m->actual_time_holding));
         send_http_get_request(process_raport_url,http_get_request_w_no_return);
         sec_counter = 0;
         timer_start(TIMER_GROUP_0,TIMER_0);
