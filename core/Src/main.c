@@ -132,10 +132,11 @@ void app_main(void)
         
         average_temperature = (bottom_temperature + top_temperature) / 2;
         
+        
+          
         if((average_temperature - SENSOR_RELATIVE_ERROR <= ref_temperature) && (average_temperature + SENSOR_RELATIVE_ERROR < ref_temperature))
         {
-           ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",p_m->actual_time_holding,2*60*mashing_temperature_holdings[p_m->    actual_stage]);
-           p_m->actual_time_holding++;
+           ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",p_m->actual_time_holding,2*60*mashing_temperature_holdings[p_m->actual_stage]);
            gpio_set_level(HEATER_GPIO,1);
         }
           
@@ -143,6 +144,11 @@ void app_main(void)
         {
            gpio_set_level(HEATER_GPIO,0);
         }
+          
+        if((average_temperature - SENSOR_RELATIVE_ERROR == ref_temperature) || (average_temperature + SENSOR_RELATIVE_ERROR == ref_temperature))
+        {
+            p_m->actual_time_holding++;
+        } 
            
         ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C ", bottom_sensor_measurement,bottom_temperature,top_sensor_measurement,top_temperature);   
         sprintf(process_raport_url,MASHING_RAPORT_URL,p_m->recipe_id, p_m->actual_stage,bottom_temperature,top_temperature,0,CALC_INTER_TO_MIN(p_m->actual_time_holding));
