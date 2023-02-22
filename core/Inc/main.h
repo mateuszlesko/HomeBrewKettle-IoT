@@ -27,18 +27,10 @@
 
 #define DEBUG_TAG "DEBUG:"
 #define MEASUREMENT_TAG "MEASUREMENT:"
+#define SEMAPHORE_ERR_TAG "SYMAPHORY ERR:"
 
 #define TIMER_DIVIDER   (40000)
 
-#define MAX_STAGES_NUM  10
-
 static bool IRAM_ATTR timer_group_isr_callback(void * args);
-
-//static unsigned char control_signals = 0x00;
-
-#define MISFUNCTION_BIT 4
-#define IDLE_BIT 5
-#define IN_PROCESS_BIT 6
-#define FINISH_PROCESS_BIT 7
 
 #endif

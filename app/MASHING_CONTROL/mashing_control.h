@@ -4,10 +4,18 @@
 
 #include <stdint.h>
 
-#define SENSOR_RELATIVE_ERROR 2 
+#define SENSOR_AVG_ABSOLUTE_ERROR 2 
 
 #define HEATER_GPIO GPIO_NUM_17
 #define PUMP_GPIO GPIO_NUM_16
+
+#define MAX_STAGES_NUM  (8)
+
+#define HEATER_ACTIVE_STATE (0)
+#define HEATER_PASSIVE_STATE (1)
+
+#define PUMP_ACTIVE_STATE (0)
+#define PUMP_PASSIVE_STATE (1)
 
 #define REMOTE_PROCESS_PAUSE 0
 #define REMOTE_PROCESS_CONTINUE 1
@@ -29,5 +37,21 @@ typedef struct{
 typedef struct{
     int control_signals;
 }RemoteControl;
+
+//typedef struct
+//{
+//    int bottom_temperature;
+//    int top_temperature;
+//}T_SensorLog;
+//
+//typedef struct{
+//    unsigned char state;
+//    unsigned char control_signals;
+//}T_MashingProcess;
+//
+//int convert_mV_to_C(int mV);
+
+/* unit to control process: control acculuators */
+//T_MashingProcess control_process(int temperature);
 
 #endif

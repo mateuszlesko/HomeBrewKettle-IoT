@@ -9,7 +9,12 @@ void configure_adc1(PinADC1 *adc)
 
 uint32_t measure_mV_method1(PinADC1 *adc)
 {
-    uint32_t raw = adc1_get_raw(adc->channel);
+    uint32_t raw = 0;
+    for(int probe = 0; probe < adc->samples; probe++)
+    {
+        raw+=adc1_get_raw(adc->channel);
+    }
+    raw /= adc->samples;    
     uint32_t mV = esp_adc_cal_raw_to_voltage(raw,adc->p_characts);
     return mV;
 }

@@ -8,6 +8,7 @@ PinADC1 *p_sensor_top; // sensor at the top
 int sec_counter = 0;
 static SemaphoreHandle_t s_timer_sem;
 
+
 int mashing_temperatures[MAX_STAGES_NUM];
 int mashing_temperature_holdings[MAX_STAGES_NUM];
 
@@ -46,10 +47,15 @@ void app_main(void)
     p_sensor_top->p_characts = &top_sensor_adc1_characts;
     configure_adc1(p_sensor_top);
    
-    //TIMER SETUP
+    /******************************************************************************************** 
+    @func: time counting
+    @descr: if time keeping temperature is equal to the one in recipe, them actual stage+1
+            and reset time holding 
+    ********************************************************************************************/
+    
     s_timer_sem = xSemaphoreCreateBinary();
     if (s_timer_sem == NULL) {
-        printf("Binary semaphore can not be created");
+         ESP_LOGI(SEMAPHORE_ERR_TAG,"Binary semaphore can not be created");
         return;
     }
     timer_config_t config = {
@@ -69,27 +75,30 @@ void app_main(void)
     //WIFI SETUP
     init_wifi_connection();
       
-    uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
-    
     vTaskDelay(500);
-    
     http_get_request_handler http_get_request_w_no_return = &client_event_HTTP_GET_none_return_data_handler;
+
     http_get_request_handler http_get_request_w_return = &client_event_HTTP_GET_w_return_data_handler;
     
     send_http_get_request(READY_TO_WORK_URL, http_get_request_w_no_return);
-        
-    send_http_get_request(GET_PROCEDURE_URL, http_get_request_w_return);
+    send_http_get_request(GET_PROCEDURE_URL, http_get_request_w_return);    
     Mashing mashing = {};
     Mashing *p_m = &mashing;
     deserialize_json_to_mashing_recipe(http_data_buffer,p_m, mashing_temperatures,mashing_temperature_holdings);
     
     RemoteControl remote_control = {};
     RemoteControl* p_rc = &remote_control;
+    send_http_get_request(REMOTE_CONTROL_URL, http_get_request_w_return);
+    deserialize_json_to_remote_control(http_data_buffer, p_rc);
+    //uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
     
     timer_start(TIMER_GROUP_0, TIMER_0);    
     while(true)
     {
-      // every 30s do following tasks:
+     
+      /******************************************************************************************** 
+      @descr: every 30s control mashing process
+      ********************************************************************************************/
       if(sec_counter == 30)
       {
         timer_pause(TIMER_GROUP_0,TIMER_0);
@@ -97,33 +106,50 @@ void app_main(void)
         // check if the procedure reach its end
         if(p_m->actual_stage == p_m->num_stages)
         { 
-            gpio_set_level(HEATER_GPIO,0);
-            gpio_set_level(PUMP_GPIO,0);
+            gpio_set_level(HEATER_GPIO,HEATER_PASSIVE_STATE);
+            gpio_set_level(PUMP_GPIO,PUMP_PASSIVE_STATE);
             send_http_get_request(PROCEDURE_FINISH_URL ,http_get_request_w_no_return);
             continue;
         }
         
-        //check remote control signals
+        /******************************************************************************************** 
+        @func: remote control
+        @descr: get remote control commands and obey 
+        ********************************************************************************************/
+        
         send_http_get_request(REMOTE_CONTROL_URL, http_get_request_w_return);
         deserialize_json_to_remote_control(http_data_buffer, p_rc);
-        //check if procedure has to be paused
+        
         if((p_rc->control_signals == REMOTE_PROCESS_PAUSE) || (p_rc->control_signals == REMOTE_PROCESS_FINISH))
         {
-            gpio_set_level(HEATER_GPIO,0);
-            gpio_set_level(PUMP_GPIO,0);
+            gpio_set_level(HEATER_GPIO,HEATER_PASIVE_STATE);
+            gpio_set_level(PUMP_GPIO,PUMP_PASSIVE_STATE);
             continue;
         }  
          
-        // check if the temperautre time holding equals the one in recipe
-        //120 because: mashing times is in minutes and we checking it every 30s
+        
+        
+        /******************************************************************************************** 
+        @func: time temperature keeping monitor
+        @descr: if time keeping temperature is equal to the one in recipe, them actual stage+1
+                and reset time holding
+        ********************************************************************************************/
+        
+        //multiply by 120 because mashing times is in minutes and we checking it every 30s
         if(p_m->actual_time_holding == 120*mashing_temperature_holdings[p_m->actual_stage])
         {
             p_m->actual_time_holding = 0;
             p_m->actual_stage++;
         }
         
-        gpio_set_level(PUMP_GPIO,1);
+        gpio_set_level(PUMP_GPIO,PUMP_ACTIVE_STATE);
         
+        /******************************************************************************************** 
+        @func: temperature monitor & control actuators
+        @descr: if the measured temperature is equal or less then the one from actual stage recipe
+                turn on heater, if no turn off heater
+        ********************************************************************************************/
+          
         int ref_temperature = mashing_temperatures[p_m->actual_stage];
         bottom_sensor_measurement = measure_mV_method1(p_sensor_bottom);
         top_sensor_measurement = measure_mV_method1(p_sensor_top);
@@ -131,28 +157,33 @@ void app_main(void)
         top_temperature = top_sensor_measurement / 10;
         
         average_temperature = (bottom_temperature + top_temperature) / 2;
-        
-        
           
-        if((average_temperature - SENSOR_RELATIVE_ERROR <= ref_temperature) && (average_temperature + SENSOR_RELATIVE_ERROR < ref_temperature))
+        if((average_temperature - SENSOR_AVG_ABSOLUTE_ERROR <= ref_temperature) && (average_temperature + SENSOR_AVG_ABSOLUTE_ERROR < ref_temperature))
         {
            ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",p_m->actual_time_holding,2*60*mashing_temperature_holdings[p_m->actual_stage]);
-           gpio_set_level(HEATER_GPIO,1);
+           gpio_set_level(HEATER_GPIO,HEATER_ACTIVE_STATE);
         }
           
-        if(!((average_temperature - SENSOR_RELATIVE_ERROR <= ref_temperature) && (average_temperature + SENSOR_RELATIVE_ERROR < ref_temperature)))
+        if(!((average_temperature - SENSOR_AVG_ABSOLUTE_ERROR <= ref_temperature) && (average_temperature + SENSOR_AVG_ABSOLUTE_ERROR < ref_temperature)))
         {
-           gpio_set_level(HEATER_GPIO,0);
+           gpio_set_level(HEATER_GPIO,HEATER_PASSIVE_STATE);
         }
           
-        if((average_temperature - SENSOR_RELATIVE_ERROR == ref_temperature) || (average_temperature + SENSOR_RELATIVE_ERROR == ref_temperature))
+        if((average_temperature - SENSOR_AVG_ABSOLUTE_ERROR == ref_temperature) || (average_temperature + SENSOR_AVG_ABSOLUTE_ERROR == ref_temperature))
         {
             p_m->actual_time_holding++;
         } 
-           
+        
+        /******************************************************************************************** 
+        @func: mashing process remote report
+        @descr: send to http server data about the process progress and its parameters
+        ********************************************************************************************/
+          
         ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C ", bottom_sensor_measurement,bottom_temperature,top_sensor_measurement,top_temperature);   
         sprintf(process_raport_url,MASHING_RAPORT_URL,p_m->recipe_id, p_m->actual_stage,bottom_temperature,top_temperature,0,CALC_INTER_TO_MIN(p_m->actual_time_holding));
         send_http_get_request(process_raport_url,http_get_request_w_no_return);
+       
+        //start once again counting
         sec_counter = 0;
         timer_start(TIMER_GROUP_0,TIMER_0);
       }

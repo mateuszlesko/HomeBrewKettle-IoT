@@ -1,10 +1,10 @@
 #ifndef ADC_H
 
 #define ADC_H
-    #include <stdio.h>
+    #include "freertos/FreeRTOS.h"
     #include "driver/adc.h"
     #include "esp_adc_cal.h"
-
+    
     #define ADC_WIDTH 2048
 
     typedef struct 
