@@ -8,7 +8,6 @@ PinADC1 *p_sensor_top; // sensor at the top
 int sec_counter = 0;
 static SemaphoreHandle_t s_timer_sem;
 
-
 int mashing_temperatures[MAX_STAGES_NUM];
 int mashing_temperature_holdings[MAX_STAGES_NUM];
 
@@ -21,7 +20,7 @@ static bool IRAM_ATTR timer_group_isr_callback(void * args)
 }
 
 void app_main(void)
-{ 
+{  
     ESP_LOGI(HARDWARE_SETUP_TAG, "Configuring hardware");
     
     gpio_reset_pin(HEATER_GPIO);
@@ -72,13 +71,26 @@ void app_main(void)
     timer_enable_intr(TIMER_GROUP_0, TIMER_0);
     timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_group_isr_callback, NULL, 0);
     
-    //WIFI SETUP
-    init_wifi_connection();
-      
+    /******************************************************************************************** 
+    @func: remote control and raporting to remote func
+    @descr: configure connection to the local WiFi router
+    ********************************************************************************************/
+    init_wifi_connection();  
     vTaskDelay(500);
+    
+    /******************************************************************************************** 
+    @func: http - remote control and raporting to remote
+    @descr: create http client to remote communication
+    ********************************************************************************************/
+    
     http_get_request_handler http_get_request_w_no_return = &client_event_HTTP_GET_none_return_data_handler;
 
     http_get_request_handler http_get_request_w_return = &client_event_HTTP_GET_w_return_data_handler;
+    
+    /******************************************************************************************** 
+    @func: mash recepture from remote
+    @descr: get mashing recepture from remote server
+    ********************************************************************************************/
     
     send_http_get_request(READY_TO_WORK_URL, http_get_request_w_no_return);
     send_http_get_request(GET_PROCEDURE_URL, http_get_request_w_return);    
@@ -88,9 +100,8 @@ void app_main(void)
     
     RemoteControl remote_control = {};
     RemoteControl* p_rc = &remote_control;
-    send_http_get_request(REMOTE_CONTROL_URL, http_get_request_w_return);
-    deserialize_json_to_remote_control(http_data_buffer, p_rc);
-    //uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
+    
+    uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
     
     timer_start(TIMER_GROUP_0, TIMER_0);    
     while(true)
@@ -127,8 +138,7 @@ void app_main(void)
             continue;
         }  
          
-        
-        
+            
         /******************************************************************************************** 
         @func: time temperature keeping monitor
         @descr: if time keeping temperature is equal to the one in recipe, them actual stage+1
