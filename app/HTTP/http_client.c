@@ -39,7 +39,6 @@ esp_err_t send_http_get_request(char* url, http_get_request_handler http_handler
 
 esp_err_t client_event_HTTP_GET_none_return_data_handler(esp_http_client_event_handle_t evt)
 {
-    ESP_LOGI(HTTP_TAG,"readiness request");
     esp_err_t status = ESP_FAIL;
     switch (evt->event_id)
     {

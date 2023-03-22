@@ -1,9 +1,13 @@
 #include "main.h"
 
+#define CONTROL_BTN_PIN 14
+
 esp_adc_cal_characteristics_t bottom_sensor_adc1_characts;
 esp_adc_cal_characteristics_t top_sensor_adc1_characts;
 PinADC1 *p_sensor_bottom; // sensor at the bottom
 PinADC1 *p_sensor_top; // sensor at the top
+
+T_HMI_SCREEN* p_hmi_screen;
 
 int sec_counter = 0;
 static SemaphoreHandle_t s_timer_sem;
@@ -19,14 +23,47 @@ static bool IRAM_ATTR timer_group_isr_callback(void * args)
     return (high_task_awoken == pdTRUE);    
 }
 
-void app_main(void)
-{  
+/******************************************************************************************** 
+@func: mesh process paused / resumption by interrupt
+@descr: on falling edge at CONTROL_BTN_PIN static variable Process_Blockade change its value
+********************************************************************************************/
+static void control_button_isr_handler(void* args)
+{
+    Process_Blockade ^= 1;
+}
+
+/******************************************************************************************** 
+@func:  configure_gpio
+@descr: configuring gpio and hardware external interrupt
+********************************************************************************************/
+static void configure_gpio()
+{
     ESP_LOGI(HARDWARE_SETUP_TAG, "Configuring hardware");
     
     gpio_reset_pin(HEATER_GPIO);
     gpio_set_direction(HEATER_GPIO, GPIO_MODE_OUTPUT);
     gpio_reset_pin(PUMP_GPIO);
     gpio_set_direction(PUMP_GPIO, GPIO_MODE_OUTPUT);
+    
+    /* CONTROL BUTTON */
+    /* CONFIGURE PIN AND INTERRUPT*/
+    
+    gpio_reset_pin(CONTROL_BTN_PIN);
+    gpio_config_t pGPIOConfig;
+    pGPIOConfig.pin_bit_mask = (1ULL << CONTROL_BTN_PIN);
+    pGPIOConfig.mode = GPIO_MODE_DEF_INPUT;
+    pGPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
+    pGPIOConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    pGPIOConfig.intr_type = GPIO_INTR_NEGEDGE; /* intr on falling edge */
+    
+    gpio_config(&pGPIOConfig);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(CONTROL_BTN_PIN,control_button_isr_handler, NULL);
+}
+
+void app_main(void)
+{  
+    configure_gpio();
     
     free(p_sensor_bottom);
     p_sensor_bottom = (PinADC1*)calloc(1,sizeof(PinADC1));
@@ -45,7 +82,16 @@ void app_main(void)
     p_sensor_top->samples = 32;
     p_sensor_top->p_characts = &top_sensor_adc1_characts;
     configure_adc1(p_sensor_top);
-   
+    
+    /******************************************************************************************** 
+    @func: human machine interface - configuration via i2c
+    @descr: conifugre oled display and show status message
+    ********************************************************************************************/
+    free(p_hmi_screen);
+    p_hmi_screen = HMI_init_screen_128x64(2, 3, 8);
+    HMI_i2c_init(p_hmi_screen);
+    HMI_Mashtum_is_READY(p_hmi_screen);
+    
     /******************************************************************************************** 
     @func: time counting
     @descr: if time keeping temperature is equal to the one in recipe, them actual stage+1
@@ -94,15 +140,15 @@ void app_main(void)
     
     send_http_get_request(READY_TO_WORK_URL, http_get_request_w_no_return);
     send_http_get_request(GET_PROCEDURE_URL, http_get_request_w_return);    
-    Mashing mashing = {};
-    Mashing *p_m = &mashing;
+    T_MashingProcess mashing = {};
+    T_MashingProcess *p_m = &mashing;
     deserialize_json_to_mashing_recipe(http_data_buffer,p_m, mashing_temperatures,mashing_temperature_holdings);
     
-    RemoteControl remote_control = {};
-    RemoteControl* p_rc = &remote_control;
+    T_RemoteControl remote_control = {};
+    T_RemoteControl* p_rc = &remote_control;
     
     uint32_t bottom_sensor_measurement,top_sensor_measurement,bottom_temperature,top_temperature, average_temperature = 0;
-    
+   
     timer_start(TIMER_GROUP_0, TIMER_0);    
     while(true)
     {
@@ -110,8 +156,9 @@ void app_main(void)
       /******************************************************************************************** 
       @descr: every 30s control mashing process
       ********************************************************************************************/
-      if(sec_counter == 30)
+      if(sec_counter == PERIODS)
       {
+        ESP_LOGI(DEBUG_TAG,"period counter");
         timer_pause(TIMER_GROUP_0,TIMER_0);
         
         // check if the procedure reach its end
@@ -131,10 +178,11 @@ void app_main(void)
         send_http_get_request(REMOTE_CONTROL_URL, http_get_request_w_return);
         deserialize_json_to_remote_control(http_data_buffer, p_rc);
         
-        if((p_rc->control_signals == REMOTE_PROCESS_PAUSE) || (p_rc->control_signals == REMOTE_PROCESS_FINISH))
+        if((Process_Blockade == 1) || (p_rc->control_signals == REMOTE_PROCESS_PAUSE) || (p_rc->control_signals == REMOTE_PROCESS_FINISH))
         {
-            gpio_set_level(HEATER_GPIO,HEATER_PASIVE_STATE);
-            gpio_set_level(PUMP_GPIO,PUMP_PASSIVE_STATE);
+            ESP_LOGI(DEBUG_TAG,"PROCESS STAGNED \n");
+            gpio_set_level(HEATER_GPIO, HEATER_PASSIVE_STATE);
+            gpio_set_level(PUMP_GPIO, PUMP_PASSIVE_STATE);
             continue;
         }  
          
@@ -163,14 +211,13 @@ void app_main(void)
         int ref_temperature = mashing_temperatures[p_m->actual_stage];
         bottom_sensor_measurement = measure_mV_method1(p_sensor_bottom);
         top_sensor_measurement = measure_mV_method1(p_sensor_top);
-        bottom_temperature = bottom_sensor_measurement / 10;
-        top_temperature = top_sensor_measurement / 10;
+        bottom_temperature = mV_TO_C(bottom_sensor_measurement);
+        top_temperature = mV_TO_C(top_sensor_measurement);
         
         average_temperature = (bottom_temperature + top_temperature) / 2;
           
         if((average_temperature - SENSOR_AVG_ABSOLUTE_ERROR <= ref_temperature) && (average_temperature + SENSOR_AVG_ABSOLUTE_ERROR < ref_temperature))
         {
-           ESP_LOGI(MEASUREMENT_TAG,"time holding: %d / %d",p_m->actual_time_holding,2*60*mashing_temperature_holdings[p_m->actual_stage]);
            gpio_set_level(HEATER_GPIO,HEATER_ACTIVE_STATE);
         }
           
@@ -189,14 +236,22 @@ void app_main(void)
         @descr: send to http server data about the process progress and its parameters
         ********************************************************************************************/
           
-        ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C ", bottom_sensor_measurement,bottom_temperature,top_sensor_measurement,top_temperature);   
+        ESP_LOGI(MEASUREMENT_TAG, "BOTTOM ADC : %d mV = %d C \n TOP ADC : %d mV = %d C \n REF T: %d \n time holding: %d / %d \n", 
+            bottom_sensor_measurement,
+            bottom_temperature,
+            top_sensor_measurement,
+            top_temperature,
+            mashing_temperatures[p_m->actual_stage],
+            CALC_INTER_TO_MIN(p_m->actual_time_holding),
+            CALC_INTER_TO_MIN(mashing_temperature_holdings[p_m->actual_stage])
+        );
         sprintf(process_raport_url,MASHING_RAPORT_URL,p_m->recipe_id, p_m->actual_stage,bottom_temperature,top_temperature,0,CALC_INTER_TO_MIN(p_m->actual_time_holding));
         send_http_get_request(process_raport_url,http_get_request_w_no_return);
        
         //start once again counting
         sec_counter = 0;
         timer_start(TIMER_GROUP_0,TIMER_0);
-      }
-          vTaskDelay(10); //to feed watchdog
-    }    
-}    
+    }
+    vTaskDelay(10); //to feed watchdog    
+    }  
+} 

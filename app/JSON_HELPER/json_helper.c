@@ -1,6 +1,6 @@
 #include "json_helper.h"
 
-void deserialize_json_to_mashing_recipe(char* json, Mashing *p_mashing, int* temperatures, int* durations)
+void deserialize_json_to_mashing_recipe(char* json, T_MashingProcess *p_mashing, int* temperatures, int* durations)
 {
     cJSON *root2 = cJSON_Parse(json);
 	p_mashing->mashing_id = cJSON_GetObjectItem(root2,"MID")->valueint;
@@ -22,7 +22,7 @@ void deserialize_json_to_mashing_recipe(char* json, Mashing *p_mashing, int* tem
     cJSON_Delete(root2);
 }
 
-void deserialize_json_to_remote_control(char* json, RemoteControl *p_rc){
+void deserialize_json_to_remote_control(char* json, T_RemoteControl *p_rc){
     cJSON *root2 = cJSON_Parse(json);
     p_rc->control_signals = cJSON_GetObjectItem(root2,"cs")->valueint;
     cJSON_Delete(root2);

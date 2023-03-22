@@ -1,5 +1,7 @@
 set(SOURCES ./Src/main.c)
 
+set(EXTRA_COMPONENT_DIRS ../app/SSD1306/ssd1306)
+
 idf_component_register(SRCS ${SOURCES}
                         INCLUDE_DIRS . Inc
                         REQUIRES 

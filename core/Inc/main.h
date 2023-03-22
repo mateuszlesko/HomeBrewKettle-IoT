@@ -21,6 +21,9 @@
 #include "../../app/HTTP/http_client.h"
 #include "../../app/MASHING_CONTROL/mashing_control.h"
 #include "../../app/JSON_HELPER/json_helper.h"
+#include "../../app/HMI/hmi.h"
+#include "../../app/SSD1306/font8x8_basic.h"
+#include "../../app/SSD1306/ssd1306.h"
 
 #define HARDWARE_SETUP_TAG "SETUP: HARDWARE"
 #define WIFI_SETUP_TAG "SETUP: WIFI"
