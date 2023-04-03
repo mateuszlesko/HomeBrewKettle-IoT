@@ -20,7 +20,7 @@
 
 #define REMOTE_CONTROL_URL "http://192.168.137.1:9990/mashtun/xxx/remote-control"
 
-#define MASHING_RAPORT_URL "http://192.168.137.1:9990/mashtun/xxx/report?rid=%d&sid=%d&bs=%d&ts=%d&cs=%d&cl=%d" 
+#define MASHING_RAPORT_URL "http://192.168.137.1:9990/mashtun/xxx/report?sid=%d&bs=%d&ts=%d&pmp=%d&ht=%d&ps=%d" 
 
 char http_data_buffer[BUFFER_SIZE];
 

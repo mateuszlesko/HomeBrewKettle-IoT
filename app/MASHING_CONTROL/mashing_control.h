@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#define SENSOR_AVG_ABSOLUTE_ERROR (5) 
+#define SENSOR_AVG_ABSOLUTE_ERROR (6) 
 
 #define HEATER_GPIO (GPIO_NUM_17)
 #define PUMP_GPIO (GPIO_NUM_16)
@@ -21,18 +21,21 @@
 #define REMOTE_PROCESS_CONTINUE (1)
 #define REMOTE_PROCESS_FINISH (2)
 
-/* [ 1 /(80MHz / 40000) ] = 2kHz */
-#define PERIODS (30)
+#define PERIODS (10)
 
+#define MIN_TO_PERIODS(MIN) ((MIN*60) / PERIODS)
 #define CALC_INTER_TO_MIN(INTERVALS) (INTERVALS / 120)
 
 #define mV_TO_C(mV) (mV / 10)
 
-static unsigned int Process_Blockade = 0;
+#define MASHING_IS_IN_WORK (0)
+#define MASHING_IS_FINISHED (1)
+
 typedef struct{
+    uint32_t mashing_id;
+    uint32_t recipe_id;
     uint16_t control_signals;
-    unsigned int mashing_id;
-    unsigned int recipe_id;
+    uint16_t pump;
     unsigned int num_stages;
     unsigned int actual_stage;
     unsigned int actual_time_holding;
@@ -42,23 +45,13 @@ typedef struct{
 
 typedef struct{
     int control_signals;
+    int pump_work;
 }T_RemoteControl;
 
+typedef struct{
+    uint8_t heater;
+    uint8_t pump;
+}T_Actuator;
 
-//typedef struct
-//{
-//    int bottom_temperature;
-//    int top_temperature;
-//}T_SensorLog;
-//
-//typedef struct{
-//    unsigned char state;
-//    unsigned char control_signals;
-//}T_MashingProcess;
-//
-
-/* unit to control process: control acculuators */
-//T_MashingProcess control_process(int temperature);
-
-
+static unsigned char mashing_finish = MASHING_IS_IN_WORK;
 #endif

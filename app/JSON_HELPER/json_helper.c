@@ -25,5 +25,6 @@ void deserialize_json_to_mashing_recipe(char* json, T_MashingProcess *p_mashing,
 void deserialize_json_to_remote_control(char* json, T_RemoteControl *p_rc){
     cJSON *root2 = cJSON_Parse(json);
     p_rc->control_signals = cJSON_GetObjectItem(root2,"cs")->valueint;
+    p_rc->pump_work = cJSON_GetObjectItem(root2,"pmp")->valueint;
     cJSON_Delete(root2);
 }

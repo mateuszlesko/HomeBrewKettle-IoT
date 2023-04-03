@@ -23,13 +23,10 @@ typedef struct
 } T_HMI_SCREEN;
 
 
-#if CONFIG_SSD1306_128x64
-    T_HMI_SCREEN* HMI_init_screen_128x64(unsigned int center, unsigned int top, unsigned int bottom);
-#endif //CONFIG_SSD1306_128x64
+T_HMI_SCREEN* HMI_init_screen_128x64(unsigned int center, unsigned int top, unsigned int bottom);
 
-#if CONFIG_I2C_INTERFACE
-    void HMI_i2c_init(T_HMI_SCREEN* p_hmi);
-#endif
+
+void HMI_i2c_init(T_HMI_SCREEN* p_hmi);
 
 void write_init_screen(T_HMI_SCREEN* hmi);
 
